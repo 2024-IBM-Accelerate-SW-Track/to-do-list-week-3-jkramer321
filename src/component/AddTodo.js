@@ -1,65 +1,33 @@
-import React, { Component } from "react";
-import { Button, TextField } from "@mui/material";
+import { render, screen } from '@testing-library/react';
+import { unmountComponentAtNode } from 'react-dom';
+import App from './App';
 
-class AddTodo extends Component {
-  // Create a local react state of the this component with both content date property set to nothing.
-  constructor() {
-    super();
-    this.state = {
-      content: "",
-      date: ""
-    };
-  }
-  // The handleChange function updates the react state with the new input value provided from the user and the current date/time.
-  // "event" is the defined action a user takes. In this case, the event is triggered when the user types something
-  // into the text field.
-  handleChange = (event) => {
-    this.setState({
-      content: event.target.value,
-      date: Date().toLocaleString('en-US')
-    });
-  };
-  // The handleSubmit function collects the forms input and puts it into the react state.
-  // event.preventDefault() is called to prevents default event behavior like refreshing the browser.
-  // this.props.addTodo(this.state) passes the current state (or user input and current date/time) into the addTodo function defined
-  // in the Home.js file which then adds the input into the list.
-  handleSubmit = (event) => {
-    event.preventDefault();
-    if (this.state.content.trim()) {
-      this.props.addTodo(this.state);
-      this.setState({
-        content: "",
-        date: ""
-      });
-    }
-  };
-  render() {
-    return (
-      // 1. When rendering a component, you can render as many elements as you like as long as it is wrapped inside
-      // one div element.
-      // 2. The return statement should include a text field input with the handleChange function from above that
-      // is passed into an onChange event.
-      // 3. The return should also include a button with the handleSubmit function from above that is passed into
-      // an OnClick event.
-      // 4. The value of the text field also should reflect the local state of this component.
-      <div>
-        <TextField
-          label="Add New Item"
-          variant="outlined"
-          onChange={this.handleChange}
-          value={this.state.content}
-        />
-        <Button
-          style={{ marginLeft: "10px" }}
-          onClick={this.handleSubmit}
-          variant="contained"
-          color="primary"
-        >
-          Add
-        </Button>
-      </div>
-    );
-  }
-}
+let container = null;
+beforeEach(() => {
+  // setup a DOM element as a render target
+  container = document.createElement("div");
+  document.body.appendChild(container);
+});
 
-export default AddTodo;
+afterEach(() => {
+  // cleanup on exiting
+  unmountComponentAtNode(container);
+  container.remove();
+  container = null;
+});
+
+test('test that App component renders', () => {
+  render(<App />, container);
+ });
+
+test('test that new-item-button is a button', () => {
+  render(<App/>, container);
+  const element = screen.getByTestId('new-item-button');
+  expect(element.outerHTML.toLowerCase().includes("button")).toBe(true)
+});
+
+test('test that new-item-input is an input ', () => {
+  render(<App/>, container);
+  const element = screen.getByTestId('new-item-input');
+  expect(element.innerHTML.toLowerCase().includes("input")).toBe(true)
+});
